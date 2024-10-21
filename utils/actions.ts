@@ -15,12 +15,19 @@ import { uploadImage } from './supabase';
 import { calculateTotals } from './calculateTotals';
 import { formatDate } from './format';
 const getAuthUser = async () => {
-  const user = await currentUser();
-  if (!user) {
-    throw new Error('You must be logged in to access this route');
+  try {
+    const user = await currentUser();
+    if (!user) {
+      throw new Error('You must be logged in to access this route');
+    }
+    if (!user.privateMetadata.hasProfile) {
+      redirect('/profile/create');
+    }
+    return user;
+  } catch (error) {
+    console.error('Error in getAuthUser:', error);
+    throw error;
   }
-  if (!user.privateMetadata.hasProfile) redirect('/profile/create');
-  return user;
 };
 
 const getAdminUser = async () => {
@@ -204,17 +211,24 @@ export const fetchFavoriteId = async ({
 }: {
   propertyId: string;
 }) => {
-  const user = await getAuthUser();
-  const favorite = await db.favorite.findFirst({
-    where: {
-      propertyId,
-      profileId: user.id,
-    },
-    select: {
-      id: true,
-    },
-  });
-  return favorite?.id || null;
+  try {
+    const user = await getAuthUser();
+    const favorite = await db.favorite.findFirst({
+      where: {
+        propertyId,
+        profileId: user.id,
+      },
+      select: {
+        id: true,
+        propertyId: true,
+      },
+    });
+    return favorite?.id || null;
+  } catch (error) {
+    console.error('Error fetching favorite ID:', error);
+    // Consider a fallback or rethrow the error based on your application's logic
+    return null;
+  }
 };
 
 export const toggleFavoriteAction = async (prevState: {
