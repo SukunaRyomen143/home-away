@@ -1,36 +1,74 @@
 'use client';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import React, { useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
+  Elements,
+  PaymentElement,
 } from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
 );
 
-function CheckoutPage() {
+function PaymentPage() {
   const searchParams = useSearchParams();
-  const bookingId = searchParams.get('bookingId');
+  const reservationId = searchParams.get('bookingId');
+  const [clientSecret, setClientSecret] = useState('');
 
-  const fetchClientSecret = useCallback(async () => {
-    const response = await axios.post('/api/payment', {
-      bookingId: bookingId,
-    });
-    return response.data.clientSecret;
-  }, []);
+  const retrievePaymentIntent = useCallback(async () => {
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingId: reservationId }),
+      });
 
-  const options = { fetchClientSecret };
+      if (!response.ok) {
+        throw new Error('Failed to retrieve payment intent');
+      }
+
+      const data = await response.json();
+      setClientSecret(data.paymentIntentSecret || data.clientSecret);
+    } catch (error) {
+      console.error(error);
+      // Handle error appropriately, e.g., display an error message to the user
+    }
+  }, [reservationId]);
+
+  useEffect(() => {
+    if (reservationId) {
+      retrievePaymentIntent();
+    }
+  }, [reservationId, retrievePaymentIntent]);
+
+  const paymentOptions = {
+    clientSecret,
+    appearance: {
+      /* Customize appearance here if needed */
+    },
+  };
 
   return (
-    <div id='checkout'>
-      <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
+    <div id='payment-container'>
+      {clientSecret && (
+        <Elements stripe={stripePromise} options={paymentOptions}>
+          <PaymentForm />
+        </Elements>
+      )}
     </div>
   );
 }
-export default CheckoutPage;
+
+function PaymentForm() {
+  return (
+    <form id='payment-form'>
+      <PaymentElement />
+      <button>Submit Payment</button>
+    </form>
+  );
+}
+
+export default PaymentPage;

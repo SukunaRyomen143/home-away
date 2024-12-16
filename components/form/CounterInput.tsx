@@ -5,38 +5,42 @@ import { LuMinus, LuPlus } from 'react-icons/lu';
 import { Button } from '../ui/button';
 import { useState } from 'react';
 
-function CounterInput({
-  detail,
-  defaultValue,
+function QuantitySelector({
+  // Changed component name
+  category, // Changed prop name
+  initialValue, // Changed prop name
 }: {
-  detail: string;
-  defaultValue?: number;
+  category: string;
+  initialValue?: number;
 }) {
-  const [count, setCount] = useState(defaultValue || 0);
+  const [quantity, setQuantity] = useState(initialValue || 0); // Changed variable name
 
-  const increaseCount = () => {
-    setCount((prevCount) => prevCount + 1);
+  const incrementQuantity = () => {
+    // Changed function name
+    setQuantity((prevQuantity) => prevQuantity + 1);
   };
 
-  const decreaseCount = () => {
-    setCount((prevCount) => {
-      if (prevCount > 0) {
-        return prevCount - 1;
+  const decrementQuantity = () => {
+    // Changed function name
+    setQuantity((prevQuantity) => {
+      if (prevQuantity > 0) {
+        return prevQuantity - 1;
       }
-      return prevCount;
+      return prevQuantity;
     });
   };
 
   return (
     <Card className='mb-4'>
-      {/* input */}
-      <input type='hidden' name={detail} value={count} />
+      <input type='hidden' name={category} value={quantity} />{' '}
+      {/* Changed variable name */}
       <CardHeader className='flex flex-col gap-y-5'>
         <div className='flex items-center justify-between flex-wrap'>
           <div className='flex flex-col'>
-            <h2 className='font-medium capitalize'>{detail}</h2>
+            <h2 className='font-medium capitalize'>{category}</h2>{' '}
+            {/* Changed variable name */}
             <p className='text-muted-foreground text-sm'>
-              Specify the number of {detail}
+              Indicate the quantity of {category}
             </p>
           </div>
           <div className='flex items-center gap-4'>
@@ -44,16 +48,19 @@ function CounterInput({
               variant='outline'
               size='icon'
               type='button'
-              onClick={decreaseCount}
+              onClick={decrementQuantity} // Changed function name
             >
               <LuMinus className='w-5 h-5 text-primary' />
             </Button>
-            <span className='text-xl font-bold w-5 text-center'>{count}</span>
+            <span className='text-xl font-bold w-5 text-center'>
+              {quantity}
+            </span>{' '}
+            {/* Changed variable name */}
             <Button
               variant='outline'
               size='icon'
               type='button'
-              onClick={increaseCount}
+              onClick={incrementQuantity} // Changed function name
             >
               <LuPlus className='w-5 h-5 text-primary' />
             </Button>
@@ -63,4 +70,4 @@ function CounterInput({
     </Card>
   );
 }
-export default CounterInput;
+export default QuantitySelector;

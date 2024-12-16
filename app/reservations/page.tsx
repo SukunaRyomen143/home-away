@@ -14,36 +14,43 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Stats from '@/components/reservations/Stats';
-async function ReservationsPage() {
-  const reservations = await fetchReservations();
-  if (reservations.length === 0) return <EmptyList />;
+
+async function BookingHistoryPage() {
+  const bookingRecords = await fetchReservations();
+  if (bookingRecords.length === 0) return <EmptyList />;
 
   return (
     <>
       <Stats />
       <div className='mt-16'>
         <h4 className='mb-4 capitalize'>
-          total reservations : {reservations.length}
+          Total Booking Records: {bookingRecords.length}
         </h4>
         <Table>
-          <TableCaption>A list of recent reservations</TableCaption>
+          <TableCaption>A summary of recent booking activity.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>Property Name</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>Nights</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Check In</TableHead>
-              <TableHead>Check Out</TableHead>
+              <TableHead>Accommodation</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Duration (Nights)</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Arrival Date</TableHead>
+              <TableHead>Departure Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reservations.map((item) => {
-              const { id, orderTotal, totalNights, checkIn, checkOut } = item;
-              const { id: propertyId, name, country } = item.property;
+            {bookingRecords.map((record) => {
+              const {
+                id,
+                orderTotal,
+                totalNights,
+                checkIn,
+                checkOut,
+                property: { id: propertyId, name, country },
+              } = record;
 
-              const startDate = formatDate(checkIn);
-              const endDate = formatDate(checkOut);
+              const formattedArrival = formatDate(checkIn);
+              const formattedDeparture = formatDate(checkOut);
               return (
                 <TableRow key={id}>
                   <TableCell>
@@ -59,8 +66,8 @@ async function ReservationsPage() {
                   </TableCell>
                   <TableCell>{totalNights}</TableCell>
                   <TableCell>{formatCurrency(orderTotal)}</TableCell>
-                  <TableCell>{startDate}</TableCell>
-                  <TableCell>{endDate}</TableCell>
+                  <TableCell>{formattedArrival}</TableCell>
+                  <TableCell>{formattedDeparture}</TableCell>
                 </TableRow>
               );
             })}
@@ -70,4 +77,4 @@ async function ReservationsPage() {
     </>
   );
 }
-export default ReservationsPage;
+export default BookingHistoryPage;

@@ -6,19 +6,20 @@ import { Button } from '@/components/ui/button';
 import { SignInButton } from '@clerk/nextjs';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import { LuTrash2, LuPenSquare } from 'react-icons/lu';
-type btnSize = 'default' | 'lg' | 'sm';
 
-type SubmitButtonProps = {
+type ButtonSize = 'default' | 'lg' | 'sm';
+
+type FormSubmitButtonProps = {
   className?: string;
-  text?: string;
-  size?: btnSize;
+  label?: string; // Changed 'text' to 'label'
+  size?: ButtonSize;
 };
 
-export function SubmitButton({
+export function FormSubmitButton({
   className = '',
-  text = 'submit',
+  label = 'submit', // Changed 'text' to 'label'
   size = 'lg',
-}: SubmitButtonProps) {
+}: FormSubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
@@ -34,13 +35,14 @@ export function SubmitButton({
           Please wait...
         </>
       ) : (
-        text
+        label // Changed 'text' to 'label'
       )}
     </Button>
   );
 }
 
-export const CardSignInButton = () => {
+export const ModalSignInButton = () => {
+  // Changed component name
   return (
     <SignInButton mode='modal'>
       <Button
@@ -56,7 +58,12 @@ export const CardSignInButton = () => {
   );
 };
 
-export const CardSubmitButton = ({ isFavorite }: { isFavorite: boolean }) => {
+export const FormToggleButton = ({
+  isToggled,
+}: {
+  isToggled: boolean;
+}) => {
+  // Changed component name and prop
   const { pending } = useFormStatus();
   return (
     <Button
@@ -67,7 +74,7 @@ export const CardSubmitButton = ({ isFavorite }: { isFavorite: boolean }) => {
     >
       {pending ? (
         <ReloadIcon className='animate-spin' />
-      ) : isFavorite ? (
+      ) : isToggled ? ( // Changed prop name
         <FaHeart />
       ) : (
         <FaRegHeart />
@@ -76,15 +83,21 @@ export const CardSubmitButton = ({ isFavorite }: { isFavorite: boolean }) => {
   );
 };
 
-type actionType = 'edit' | 'delete';
-export const IconButton = ({ actionType }: { actionType: actionType }) => {
+type ActionType = 'modify' | 'remove'; // Changed type name
+export const ActionIconButton = ({
+  actionType,
+}: {
+  actionType: ActionType;
+}) => {
+  // Changed component name
   const { pending } = useFormStatus();
 
-  const renderIcon = () => {
+  const getIcon = () => {
+    // Changed function name
     switch (actionType) {
-      case 'edit':
+      case 'modify': // Changed case value
         return <LuPenSquare />;
-      case 'delete':
+      case 'remove': // Changed case value
         return <LuTrash2 />;
       default:
         const never: never = actionType;
@@ -99,7 +112,7 @@ export const IconButton = ({ actionType }: { actionType: actionType }) => {
       variant='link'
       className='p-2 cursor-pointer'
     >
-      {pending ? <ReloadIcon className=' animate-spin' /> : renderIcon()}
+      {pending ? <ReloadIcon className=' animate-spin' /> : getIcon()}
     </Button>
   );
 };
